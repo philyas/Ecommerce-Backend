@@ -10,19 +10,20 @@ import { UserService } from './user/user.service';
 
 
 @Module({
-  imports: [ TypeOrmModule.forRoot({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }), 
+    TypeOrmModule.forRoot({
     type: "postgres",
-    host: 'dpg-cq215ltds78s73esdkm0-a.frankfurt-postgres.render.com',
+    host: String(process.env.HOST),
     port: 5432,
-    username: 'user_db_zdpm_user',
-    password: 'ef6sqfRPTS4bSx1J2M0MlBAMuAjnuJJ8',
-    database: 'user_db_zdpm',
+    username: String(process.env.USER),
+    password: String(process.env.PASSWORD),
+    database: String(process.env.DB),
     entities: [User],
     ssl:true,
     synchronize: true,
   }),
   TypeOrmModule.forFeature([User]),
-   ConfigModule.forRoot({ isGlobal: true }), 
     UserModule],
   controllers: [AppController, UserController],
   providers: [AppService, UserService],
