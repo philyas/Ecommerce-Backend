@@ -1,19 +1,18 @@
-import { IsString, IsNotEmpty } from "class-validator";
-import { IsNotEmptyString } from "../validation/non-empty-string.validator";
+import { IsString, IsNotEmpty, IsEmail, ValidateIf } from "class-validator";
+
 
 export class CreateUserDto {
     @IsString()
     @IsNotEmpty()
-    @IsNotEmptyString()
+    @ValidateIf(e => e.username != "", { message:'String cannot be empty for User' })
     readonly username: string;
   
     @IsString()
-    @IsNotEmptyString()
     @IsNotEmpty()
+    @IsEmail()
     readonly email: string;
   
     @IsString()
-    @IsNotEmptyString()
     @IsNotEmpty()
     readonly password: string;
 }
