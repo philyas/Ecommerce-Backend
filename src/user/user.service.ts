@@ -13,8 +13,8 @@ export class UserService {
     private usersRepository: Repository<User>,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  create(user: CreateUserDto): Promise<User> {
+    return this.usersRepository.save(user);
   }
 
   findAll(): Promise<User[]> {
@@ -29,7 +29,7 @@ export class UserService {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number): Promise<void> {
+    await this.usersRepository.delete(id);
   }
 }
