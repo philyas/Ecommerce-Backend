@@ -4,7 +4,7 @@ import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 
 @Controller('payments')
-export class PaymentsController {
+export class PaymentController {
   constructor(private readonly paymentsService: PaymentService) {}
 
   @Post()
