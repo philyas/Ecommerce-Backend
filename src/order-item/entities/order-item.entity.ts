@@ -17,5 +17,5 @@ export class OrderItem {
   quantity: number;
 
   @Column()
-  price: number; // Store the price at the time of order
+  price: number; 
 }

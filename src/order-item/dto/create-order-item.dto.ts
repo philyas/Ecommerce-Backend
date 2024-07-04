@@ -1,7 +1,18 @@
+import { IsNotEmpty, IsNumber } from "class-validator";
+
+IsNotEmpty
+
 export class CreateOrderItemDto {
-    readonly orderId: number;
-    readonly productId: number;
-    readonly quantity: number;
-    readonly price: number;
-  }
-  
+  @IsNotEmpty()
+  @IsNumber()
+  productId: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  quantity: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  price: number; 
+
+}
