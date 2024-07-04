@@ -8,8 +8,19 @@ import { User } from './user/entities/user.entity';
 import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 import { OrderModule } from './order/order.module';
+import { OrderItemModule } from './order-item/order-item.module';
 import { ProductModule } from './product/product.module';
-
+import { CategoryModule } from './category/category.module';
+import { PaymentModule } from './payment/payment.module';
+import { Order } from './order/entities/order.entity';
+import { OrderItem } from './order-item/entities/order-item.entity';
+import { Product } from './product/entities/product.entity';
+import { Category } from './category/entities/category.entity';
+import { Payment } from './payment/entities/payment.entity';
+import { OrderService } from './order/order.service';
+import { ProductService } from './product/product.service';
+import { CategoryService } from './category/category.service';
+import { PaymentService } from './payment/payment.service';
 
 @Module({
   imports: [
@@ -21,15 +32,18 @@ import { ProductModule } from './product/product.module';
     username: String(process.env.USER),
     password: String(process.env.PASSWORD),
     database: String(process.env.DB),
-    entities: [User],
+    entities: [User, Order, OrderItem, Product, Category, Payment],
     ssl:true,
     synchronize: true,
   }),
-  TypeOrmModule.forFeature([User]),
+  TypeOrmModule.forFeature([User, Order, OrderItem, Product, Category, Payment]),
     UserModule,
     OrderModule,
-    ProductModule],
+    OrderItemModule,
+    ProductModule,
+    CategoryModule,
+    PaymentModule],
   controllers: [AppController, UserController],
-  providers: [AppService, UserService],
+  providers: [AppService, UserService, OrderService, OrderItem, ProductService, CategoryService, PaymentService],
 })
 export class AppModule {}

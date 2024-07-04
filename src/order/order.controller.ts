@@ -3,37 +3,32 @@ import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 
-@Controller('order')
+@Controller('orders')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(private readonly ordersService: OrderService) {}
 
   @Post()
-  async createOrder(@Body() createOrderDto: CreateOrderDto): Promise<Order> {
-    return this.orderService.createOrder(createOrderDto);
-  }
-
-  @Get('user/:userId')
-  async getOrdersByUser(@Param('userId') userId: number): Promise<Order[]> {
-    return this.orderService.getOrdersByUser(userId);
+  create(@Body() createOrderDto: CreateOrderDto) {
+    return this.ordersService.create(createOrderDto);
   }
 
   @Get()
   findAll() {
-    return this.orderService.findAll();
+    return this.ordersService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
+    return this.ordersService.findOne(+id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.orderService.update(+id, updateOrderDto);
+    return this.ordersService.update(+id, updateOrderDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.orderService.remove(+id);
+    return this.ordersService.remove(+id);
   }
 }
