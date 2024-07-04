@@ -1,26 +1,36 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Payment } from './entities/payment.entity';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 
 @Injectable()
 export class PaymentService {
-  create(createPaymentDto: CreatePaymentDto) {
-    return 'This action adds a new payment';
+  constructor(
+    @InjectRepository(Payment)
+    private paymentsRepository: Repository<Payment>,
+  ) {}
+
+  create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
+    const payment = this.paymentsRepository.create(createPaymentDto);
+    return this.paymentsRepository.save(payment);
   }
 
-  findAll() {
-    return `This action returns all payment`;
+  findAll(): Promise<Payment[]> {
+    return this.paymentsRepository.find({ relations: ['order'] });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} payment`;
+  findOne(id: number): Promise<Payment> {
+    return this.paymentsRepository.findOne({ where: { id }, relations: ['order'] });
   }
 
-  update(id: number, updatePaymentDto: UpdatePaymentDto) {
-    return `This action updates a #${id} payment`;
+  async update(id: number, updatePaymentDto: UpdatePaymentDto): Promise<Payment> {
+    await this.paymentsRepository.update(id, updatePaymentDto);
+    return this.findOne(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} payment`;
+  async remove(id: number): Promise<void> {
+    await this.paymentsRepository.delete(id);
   }
 }
