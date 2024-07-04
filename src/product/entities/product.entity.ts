@@ -19,8 +19,8 @@ export class Product {
 
   @Column()
   stock: number;
-
-  @ManyToMany(() => Category)
+  
+  @ManyToMany(() => Category, category => category.products)
   categories: Category[];
 
   @OneToMany(() => OrderItem, orderItem => orderItem.product)
