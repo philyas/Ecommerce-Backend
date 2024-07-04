@@ -21,6 +21,12 @@ import { OrderService } from './order/order.service';
 import { ProductService } from './product/product.service';
 import { CategoryService } from './category/category.service';
 import { PaymentService } from './payment/payment.service';
+import { CategoryController } from './category/category.controller';
+import { OrderItemController } from './order-item/order-item.controller';
+import { PaymentController } from './payment/payment.controller';
+import { ProductController } from './product/product.controller';
+import { OrderController } from './order/order.controller';
+import { OrderItemService } from './order-item/order-item.service';
 
 @Module({
   imports: [
@@ -43,7 +49,7 @@ import { PaymentService } from './payment/payment.service';
     ProductModule,
     CategoryModule,
     PaymentModule],
-  controllers: [AppController, UserController],
-  providers: [AppService, UserService, OrderService, OrderItem, ProductService, CategoryService, PaymentService],
+  controllers: [AppController, UserController, CategoryController, OrderItemController, PaymentController, ProductController, OrderController],
+  providers: [AppService, UserService, OrderService, OrderItemService, ProductService, CategoryService, PaymentService],
 })
 export class AppModule {}

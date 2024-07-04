@@ -18,7 +18,7 @@ export class CategoryService {
   }
 
   findAll(): Promise<Category[]> {
-    return this.categoriesRepository.find({ relations: ['products'] });
+    return this.categoriesRepository.find();
   }
 
   findOne(id: number): Promise<Category> {

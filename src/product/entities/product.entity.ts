@@ -21,7 +21,6 @@ export class Product {
   stock: number;
 
   @ManyToMany(() => Category)
-  @JoinTable()
   categories: Category[];
 
   @OneToMany(() => OrderItem, orderItem => orderItem.product)
