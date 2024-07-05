@@ -27,6 +27,7 @@ import { PaymentController } from './payment/payment.controller';
 import { ProductController } from './product/product.controller';
 import { OrderController } from './order/order.controller';
 import { OrderItemService } from './order-item/order-item.service';
+import { RabbitMQClientModule } from './rabbitmq/rabbitmq-client.module';
 
 @Module({
   imports: [
@@ -48,7 +49,9 @@ import { OrderItemService } from './order-item/order-item.service';
     OrderItemModule,
     ProductModule,
     CategoryModule,
-    PaymentModule],
+    PaymentModule,
+    RabbitMQClientModule
+  ],
   controllers: [AppController, UserController, CategoryController, OrderItemController, PaymentController, ProductController, OrderController],
   providers: [AppService, UserService, OrderService, OrderItemService, ProductService, CategoryService, PaymentService],
 })

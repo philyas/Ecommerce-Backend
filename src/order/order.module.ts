@@ -9,9 +9,10 @@ import { ProductController } from 'src/product/product.controller';
 import { Category } from 'src/category/entities/category.entity';
 import { CategoryController } from 'src/category/category.controller';
 import { CategoryService } from 'src/category/category.service';
+import { RabbitMQClientModule } from 'src/rabbitmq/rabbitmq-client.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, Product, Category])],
+  imports: [TypeOrmModule.forFeature([Order, Product, Category]), RabbitMQClientModule],
   controllers: [OrderController, ProductController, CategoryController],
   providers: [OrderService, ProductService, CategoryService],
 })

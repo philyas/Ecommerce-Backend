@@ -8,6 +8,8 @@ import { NotFoundException } from '@nestjs/common';
 import { ProductService } from 'src/product/product.service';
 import { OrderItem } from 'src/order-item/entities/order-item.entity';
 import { CreateOrderItemDto } from 'src/order-item/dto/create-order-item.dto';
+import { Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 
 
 @Injectable()
@@ -16,7 +18,9 @@ export class OrderService {
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
     private productService: ProductService,
-  ) { }
+    @Inject('rabbit@7c830cb07675') 
+    private readonly client: ClientProxy,
+  ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const { userId, orderItems } = createOrderDto;
@@ -43,7 +47,20 @@ export class OrderService {
       }),
     );
 
-    return this.ordersRepository.save(order);
+    const createdOrder = await this.ordersRepository.save(order);
+
+    // Publish event to RabbitMQ
+     this.client.emit('order_created', {
+      orderId: createdOrder.id,
+      userId: createdOrder.user.id,
+      orderItems: createdOrder.orderItems,
+      status: createdOrder.status,
+    });
+
+    console.log('Order Event emitted!')
+
+    return createdOrder;
+
   }
 
   findAll(): Promise<Order[]> {
