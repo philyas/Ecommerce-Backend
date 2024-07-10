@@ -41,14 +41,13 @@ export class OrderService {
         const orderItem = new OrderItem();
         orderItem.quantity = item.quantity;
         orderItem.product = product;
-        orderItem.price = item.price
+        orderItem.price = item.price * item.quantity
 
         return orderItem;
       }),
     );
 
     const createdOrder = await this.ordersRepository.save(order);
-
     // Publish event to RabbitMQ
      this.client.emit('order_created', {
       orderId: createdOrder.id,
