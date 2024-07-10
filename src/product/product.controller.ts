@@ -35,9 +35,4 @@ export class ProductController {
     return this.productsService.remove(+id);
   }
 
-  @EventPattern('file_uploaded')
-  handleProductImageUploaded(data: any) {
-    console.log('Received Order Created Event:', data);
-   // Logic after receiving data..
-  }
 }
