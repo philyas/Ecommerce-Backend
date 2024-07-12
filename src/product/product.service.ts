@@ -19,7 +19,7 @@ export class ProductService {
   ) {}
 
 
-  async create(createProductDto: CreateProductDto): Promise<String> {
+  async create(createProductDto: CreateProductDto): Promise<Product> {
     const { name, description, price, stock, categoryIds } = createProductDto;
     // Fetch categories from the database based on categoryIds
     const categories = await this.categoriesRepository.findBy({id:In(categoryIds)});
@@ -28,7 +28,7 @@ export class ProductService {
       throw new Error('Some categories not found');
     }
      // Create a new product instance
-     /*
+
      const newProduct = this.productsRepository.create({
       name,
       description,
@@ -36,14 +36,16 @@ export class ProductService {
       stock,
       categories,
     });
-    */
+ 
 
-   // const createdProduct = await this.productsRepository.save(newProduct);
+    const createdProduct = await this.productsRepository.save(newProduct);
+    // Send a message to the product queue
     const payload = {
       createProductDto
     }
     this.productClient.emit('product_created', payload);
-    return 'Product created';
+    
+    return createdProduct;
   }
 
   findAll(): Promise<Product[]> {
