@@ -9,7 +9,7 @@ import { ProductService } from 'src/product/product.service';
 import { OrderItem } from 'src/order-item/entities/order-item.entity';
 import { CreateOrderItemDto } from 'src/order-item/dto/create-order-item.dto';
 import { Inject } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, EventPattern } from '@nestjs/microservices';
 
 
 @Injectable()
@@ -18,7 +18,7 @@ export class OrderService {
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
     private productService: ProductService,
-    @Inject('rabbit@7c830cb07675') 
+    @Inject('RABBIT_ORDERS') 
     private readonly client: ClientProxy,
   ) {}
 
@@ -32,6 +32,7 @@ export class OrderService {
     order.user = { id: userId } as any; // Assuming userId is an existing
 
     // Optional: Validate if products exist and throw error if not found
+    // If Product is an extra microservice, than sending http request to product service
     await this.validateProductsExist(orderItems);
 
     order.orderItems = await Promise.all(
@@ -46,6 +47,12 @@ export class OrderService {
         return orderItem;
       }),
     );
+
+    // function for validating product stock here
+    // sending http request to check inventory product stock status
+    // .....
+    // .....
+
 
     const createdOrder = await this.ordersRepository.save(order);
     // Publish event to RabbitMQ

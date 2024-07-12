@@ -5,7 +5,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
   imports: [
     ClientsModule.register([
       {
-        name: 'rabbit@7c830cb07675',
+        name: 'RABBIT_ORDERS',
         transport: Transport.RMQ,
         options: {
           urls: ['amqp://localhost:5672'], // Adjust URL based on your RabbitMQ setup
@@ -19,4 +19,24 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
   ],
   exports: [ClientsModule],
 })
-export class RabbitMQClientModule {}
+export class RabbitMQOrderClientModule {}
+
+@Module({
+  imports: [
+    ClientsModule.register([
+      {
+        name: 'RABBIT_PRODUCTS',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://localhost:5672'], // Adjust URL based on your RabbitMQ setup
+          queue: 'products_queue', // Queue name
+          queueOptions: {
+            durable: true, // Make the queue durable
+          },
+        },
+      },
+    ]),
+  ],
+  exports: [ClientsModule],
+})
+export class RabbitMQProductClientModule {}

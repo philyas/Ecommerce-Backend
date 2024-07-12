@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Category } from 'src/category/entities/category.entity';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class ProductService {
@@ -13,21 +14,21 @@ export class ProductService {
     private productsRepository: Repository<Product>,
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
+    @Inject('RABBIT_PRODUCTS') 
+    private readonly productClient: ClientProxy,
   ) {}
 
-  async create(createProductDto: CreateProductDto): Promise<Product> {
-    const product = this.productsRepository.create(createProductDto);
 
+  async create(createProductDto: CreateProductDto): Promise<String> {
     const { name, description, price, stock, categoryIds } = createProductDto;
-
     // Fetch categories from the database based on categoryIds
     const categories = await this.categoriesRepository.findBy({id:In(categoryIds)});
 
     if (categories.length !== categoryIds.length) {
       throw new Error('Some categories not found');
     }
-
      // Create a new product instance
+     /*
      const newProduct = this.productsRepository.create({
       name,
       description,
@@ -35,8 +36,14 @@ export class ProductService {
       stock,
       categories,
     });
+    */
 
-    return this.productsRepository.save(newProduct);
+   // const createdProduct = await this.productsRepository.save(newProduct);
+    const payload = {
+      createProductDto
+    }
+    this.productClient.emit('product_created', payload);
+    return 'Product created';
   }
 
   findAll(): Promise<Product[]> {

@@ -2,8 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { EventPattern } from '@nestjs/microservices';
-import { MessagePattern } from '@nestjs/microservices';
+
 
 @Controller('products')
 export class ProductController {
