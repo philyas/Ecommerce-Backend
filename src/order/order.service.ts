@@ -63,8 +63,6 @@ export class OrderService {
       status: createdOrder.status,
     });
 
-    console.log('Order Event emitted!')
-
     return createdOrder;
 
   }

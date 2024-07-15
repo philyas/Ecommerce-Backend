@@ -27,23 +27,10 @@ export class ProductService {
     if (categories.length !== categoryIds.length) {
       throw new Error('Some categories not found');
     }
-     // Create a new product instance
-
-     const newProduct = this.productsRepository.create({
-      name,
-      description,
-      price,
-      stock,
-      categories,
-    });
  
-
-    const createdProduct = await this.productsRepository.save(newProduct);
-    // Send a message to the product queue
-    const payload = {
-      createProductDto
-    }
-    this.productClient.emit('product_created', payload);
+    const createdProduct = await this.productsRepository.save(createProductDto);
+ 
+    this.productClient.emit('product_created', createdProduct);
     
     return createdProduct;
   }
