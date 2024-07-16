@@ -28,6 +28,7 @@ import { ProductController } from './product/product.controller';
 import { OrderController } from './order/order.controller';
 import { OrderItemService } from './order-item/order-item.service';
 import { RabbitMQOrderClientModule, RabbitMQProductClientModule } from './rabbitmq/rabbitmq-client.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -51,7 +52,8 @@ import { RabbitMQOrderClientModule, RabbitMQProductClientModule } from './rabbit
     CategoryModule,
     PaymentModule,
     RabbitMQOrderClientModule,
-    RabbitMQProductClientModule
+    RabbitMQProductClientModule,
+    HttpModule
   ],
   controllers: [AppController, UserController, CategoryController, OrderItemController, PaymentController, ProductController, OrderController],
   providers: [AppService, UserService, OrderService, OrderItemService, ProductService, CategoryService, PaymentService],

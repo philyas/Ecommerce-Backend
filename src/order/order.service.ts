@@ -9,7 +9,8 @@ import { ProductService } from 'src/product/product.service';
 import { OrderItem } from 'src/order-item/entities/order-item.entity';
 import { CreateOrderItemDto } from 'src/order-item/dto/create-order-item.dto';
 import { Inject } from '@nestjs/common';
-import { ClientProxy, EventPattern } from '@nestjs/microservices';
+import { ClientProxy } from '@nestjs/microservices';
+import { HttpService } from '@nestjs/axios';
 
 
 @Injectable()
@@ -20,25 +21,27 @@ export class OrderService {
     private productService: ProductService,
     @Inject('RABBIT_ORDERS') 
     private readonly client: ClientProxy,
+    private httpService: HttpService
   ) {}
 
-  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+  async create(createOrderDto: CreateOrderDto): Promise<Order | String>  {
     const { userId, orderItems } = createOrderDto;
-
-    console.log(createOrderDto)
-
     const order = new Order();
-
     order.user = { id: userId } as any; // Assuming userId is an existing
 
     // Optional: Validate if products exist and throw error if not found
     // If Product is an extra microservice, than sending http request to product service
     await this.validateProductsExist(orderItems);
 
+    
+    // function for validating product stock here
+    // sending http request to check inventory product stock status
+    await this.checkStock(orderItems);
+
+    // Create order instance
     order.orderItems = await Promise.all(
       orderItems.map(async (item) => {
         const product = await this.productService.findOne(item.productId);
-
         const orderItem = new OrderItem();
         orderItem.quantity = item.quantity;
         orderItem.product = product;
@@ -47,11 +50,6 @@ export class OrderService {
         return orderItem;
       }),
     );
-
-    // function for validating product stock here
-    // sending http request to check inventory product stock status
-    // .....
-    // .....
 
 
     const createdOrder = await this.ordersRepository.save(order);
@@ -94,6 +92,20 @@ export class OrderService {
 
     if (missingProductIds.length > 0) {
       throw new NotFoundException(`Products with IDs [${missingProductIds.join(', ')}] not found.`);
+    }
+  }
+
+
+  private async checkStock(orderItems:CreateOrderItemDto[]){
+    for (let orderItem of orderItems) {
+      const response = await this.httpService.axiosRef
+      .get(`http://localhost:3005/inventory/${orderItem.productId}`)
+
+      // Throw exception when at least one product out of stock
+      if (response.data[0].stock  < orderItem.quantity) {
+        throw new NotFoundException(`Product with ID ${orderItem.productId} is out of stock`)
+      }
+
     }
   }
 

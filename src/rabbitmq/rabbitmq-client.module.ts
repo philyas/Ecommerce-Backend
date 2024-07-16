@@ -13,6 +13,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
           queueOptions: {
             durable: true, // Make the queue durable
           },
+          prefetchCount:1
         },
       },
     ]),
@@ -33,6 +34,7 @@ export class RabbitMQOrderClientModule {}
           queueOptions: {
             durable: true, // Make the queue durable
           },
+          prefetchCount:1
         },
       },
     ]),

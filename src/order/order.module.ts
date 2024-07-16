@@ -10,9 +10,10 @@ import { Category } from 'src/category/entities/category.entity';
 import { CategoryController } from 'src/category/category.controller';
 import { CategoryService } from 'src/category/category.service';
 import { RabbitMQOrderClientModule, RabbitMQProductClientModule } from 'src/rabbitmq/rabbitmq-client.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, Product, Category]), RabbitMQOrderClientModule, RabbitMQProductClientModule],
+  imports: [TypeOrmModule.forFeature([Order, Product, Category]), RabbitMQOrderClientModule, RabbitMQProductClientModule, HttpModule],
   controllers: [OrderController, ProductController, CategoryController],
   providers: [OrderService, ProductService, CategoryService],
 })

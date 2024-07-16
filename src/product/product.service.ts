@@ -6,6 +6,8 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Category } from 'src/category/entities/category.entity';
 import { ClientProxy } from '@nestjs/microservices';
+import { v4 as uuidv4 } from 'uuid';
+
 
 @Injectable()
 export class ProductService {
@@ -14,24 +16,33 @@ export class ProductService {
     private productsRepository: Repository<Product>,
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
-    @Inject('RABBIT_PRODUCTS') 
+    @Inject('RABBIT_PRODUCTS')
     private readonly productClient: ClientProxy,
-  ) {}
+  ) { }
 
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
     const { name, description, price, stock, categoryIds } = createProductDto;
     // Fetch categories from the database based on categoryIds
-    const categories = await this.categoriesRepository.findBy({id:In(categoryIds)});
+    const categories = await this.categoriesRepository.findBy({ id: In(categoryIds) });
 
     if (categories.length !== categoryIds.length) {
       throw new Error('Some categories not found');
     }
- 
+
     const createdProduct = await this.productsRepository.save(createProductDto);
- 
-    this.productClient.emit('product_created', createdProduct);
-    
+
+    console.log(createdProduct)
+
+    this.productClient.emit('product_created', {
+      messageId: uuidv4(),
+      id: createdProduct.id,
+      name: createdProduct.name,
+      description: createdProduct.description,
+      price: createdProduct.price,
+      stock: createdProduct.stock,
+    })
+
     return createdProduct;
   }
 
