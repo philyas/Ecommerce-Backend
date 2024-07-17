@@ -26,11 +26,11 @@ export class RabbitMQOrderClientModule {}
   imports: [
     ClientsModule.register([
       {
-        name: 'RABBIT_PRODUCTS',
+        name: 'RABBIT_INVENTORY',
         transport: Transport.RMQ,
         options: {
           urls: ['amqp://localhost:5672'], // Adjust URL based on your RabbitMQ setup
-          queue: 'products_queue', // Queue name
+          queue: 'inventory_queue', // Queue name
           queueOptions: {
             durable: true, // Make the queue durable
           },

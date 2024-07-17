@@ -20,7 +20,9 @@ export class OrderService {
     private ordersRepository: Repository<Order>,
     private productService: ProductService,
     @Inject('RABBIT_ORDERS') 
-    private readonly client: ClientProxy,
+    private readonly orderClient: ClientProxy,
+    @Inject('RABBIT_INVENTORY') 
+    private readonly inventoryClient: ClientProxy,
     private httpService: HttpService
   ) {}
 
@@ -28,15 +30,17 @@ export class OrderService {
     const { userId, orderItems } = createOrderDto;
     const order = new Order();
     order.user = { id: userId } as any; // Assuming userId is an existing
-
+  
     // Optional: Validate if products exist and throw error if not found
     // If Product is an extra microservice, than sending http request to product service
     await this.validateProductsExist(orderItems);
 
-    
     // function for validating product stock here
-    // sending http request to check inventory product stock status
+    // sending http request to check inventory product stock status (Throw Error Exception, if quantity > stock)
     await this.checkStock(orderItems);
+    
+    // update stock for all products if stock check successfull
+    this.updateStock(orderItems)
 
     // Create order instance
     order.orderItems = await Promise.all(
@@ -46,15 +50,13 @@ export class OrderService {
         orderItem.quantity = item.quantity;
         orderItem.product = product;
         orderItem.price = item.price * item.quantity
-
         return orderItem;
       }),
     );
 
-
     const createdOrder = await this.ordersRepository.save(order);
     // Publish event to RabbitMQ
-     this.client.emit('order_created', {
+     this.orderClient.emit('order_created', {
       orderId: createdOrder.id,
       userId: createdOrder.user.id,
       orderItems: createdOrder.orderItems,
@@ -99,13 +101,19 @@ export class OrderService {
   private async checkStock(orderItems:CreateOrderItemDto[]){
     for (let orderItem of orderItems) {
       const response = await this.httpService.axiosRef
-      .get(`http://localhost:3005/inventory/${orderItem.productId}`)
+      .get(`http://localhost:3005/inventory/product/${orderItem.productId}`)
 
       // Throw exception when at least one product out of stock
-      if (response.data[0].stock  < orderItem.quantity) {
+      if (response.data.stock  < orderItem.quantity) {
         throw new NotFoundException(`Product with ID ${orderItem.productId} is out of stock`)
       }
+    }
+  }
 
+  private updateStock(orderItems:CreateOrderItemDto[]){
+    for (let orderItem of orderItems) {
+       // emit event to update stock for all products in inventory service
+       this.inventoryClient.emit('stock_update', { productId:orderItem.productId, quantity: orderItem.quantity })
     }
   }
 

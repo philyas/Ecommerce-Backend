@@ -16,8 +16,8 @@ export class ProductService {
     private productsRepository: Repository<Product>,
     @InjectRepository(Category)
     private categoriesRepository: Repository<Category>,
-    @Inject('RABBIT_PRODUCTS')
-    private readonly productClient: ClientProxy,
+    @Inject('RABBIT_INVENTORY')
+    private readonly inventoryClient: ClientProxy,
   ) { }
 
 
@@ -25,16 +25,16 @@ export class ProductService {
     const { name, description, price, stock, categoryIds } = createProductDto;
     // Fetch categories from the database based on categoryIds
     const categories = await this.categoriesRepository.findBy({ id: In(categoryIds) });
-
+    // Check for valid categories
     if (categories.length !== categoryIds.length) {
       throw new Error('Some categories not found');
     }
 
+    // Create the product
     const createdProduct = await this.productsRepository.save(createProductDto);
 
-    console.log(createdProduct)
-
-    this.productClient.emit('product_created', {
+    // Send the product via event to the inventory service
+    this.inventoryClient.emit('stock_on_init', {
       messageId: uuidv4(),
       id: createdProduct.id,
       name: createdProduct.name,
