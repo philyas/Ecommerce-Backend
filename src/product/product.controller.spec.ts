@@ -6,18 +6,15 @@ import { OrderItem } from 'src/order-item/entities/order-item.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { Category } from 'src/category/entities/category.entity';
 import { ProductModule } from './product.module';
-import { ProductController } from './product.controller';
-import { ProductService } from './product.service';
 import { Payment } from 'src/payment/entities/payment.entity';
-import { PaymentController } from 'src/payment/payment.controller';
 import * as request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { CreateProductDto } from './dto/create-product.dto';
+import { ResponseProductDto } from './dto/response-product.dto';
 
 describe('ProductController', () => {
   let app: INestApplication;
-  let controller: ProductController
-  let service: ProductService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -44,14 +41,33 @@ describe('ProductController', () => {
   });
 
   it('/products (GET)', async () => {
- 
       const response = await request(app.getHttpServer())
       .get('/products')
       .expect(200);
 
       expect(Array.isArray(response.body)).toBe(true)
       expect(Array(response.body).length).toBeGreaterThanOrEqual(0)
-
   });
+
+  it('/products (POST)', async () => {
+    const newProduct:CreateProductDto= {
+      name: 'Product Name',
+      price: 100,
+      categoryIds: [1,2],
+      stock:1000,
+      description: 'Product Description',
+    };
+
+    const response = await request(app.getHttpServer())
+      .post('/products')
+      .send(newProduct)
+      .expect(201);
+
+    expect(response.body).toMatchObject(new ResponseProductDto()); // Assuming the response body contains an 'id' for the new product
+  });
+
+ 
+
+
 
 });
