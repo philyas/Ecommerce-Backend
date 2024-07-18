@@ -12,6 +12,7 @@ import { Payment } from 'src/payment/entities/payment.entity';
 import { PaymentController } from 'src/payment/payment.controller';
 import * as request from 'supertest';
 import { INestApplication } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 
 describe('ProductController', () => {
   let app: INestApplication;
@@ -21,13 +22,14 @@ describe('ProductController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
+        ConfigModule.forRoot({isGlobal:true}),
         TypeOrmModule.forRoot({
           type: "postgres",
-          host: 'dpg-cq215ltds78s73esdkm0-a.frankfurt-postgres.render.com',
+          host: String(process.env.HOST),
           port: 5432,
-          username: 'user_db_zdpm_user',
-          password: 'ef6sqfRPTS4bSx1J2M0MlBAMuAjnuJJ8',
-          database: 'user_db_zdpm',
+          username: String(process.env.USER),
+          password: String(process.env.PASSWORD),
+          database: String(process.env.DB),
           entities: [User, Order, OrderItem, Product, Category, Payment],
           ssl:true,
           synchronize: true,
