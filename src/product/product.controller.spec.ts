@@ -1,56 +1,50 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Order } from 'src/order/entities/order.entity';
+import { User } from 'src/user/entities/user.entity';
+import { OrderItem } from 'src/order-item/entities/order-item.entity';
+import { Product } from 'src/product/entities/product.entity';
+import { Category } from 'src/category/entities/category.entity';
+import { ProductModule } from './product.module';
 import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { Product } from './entities/product.entity';
+import { Payment } from 'src/payment/entities/payment.entity';
+import { PaymentController } from 'src/payment/payment.controller';
+import * as request from 'supertest';
+import { INestApplication } from '@nestjs/common';
 
 describe('ProductController', () => {
-  let controller: ProductController;
-  let service: ProductService;
+  let app: INestApplication;
+  let controller: ProductController
+  let service: ProductService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [ProductController],
-      providers: [
-        {
-          provide: ProductService,
-          useValue: {
-            create: jest.fn(),
-          },
-        },
-      ],
+      imports: [
+        TypeOrmModule.forRoot({
+          type: "postgres",
+          host: 'dpg-cq215ltds78s73esdkm0-a.frankfurt-postgres.render.com',
+          port: 5432,
+          username: 'user_db_zdpm_user',
+          password: 'ef6sqfRPTS4bSx1J2M0MlBAMuAjnuJJ8',
+          database: 'user_db_zdpm',
+          entities: [User, Order, OrderItem, Product, Category, Payment],
+          ssl:true,
+          synchronize: true,
+        }),
+        ProductModule
+      ]
     }).compile();
 
-    controller = module.get<ProductController>(ProductController);
-    service = module.get<ProductService>(ProductService);
+    app = module.createNestApplication()
+    await app.init()
+
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  it('/products (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/products')
+      .expect(200)
   });
 
-  const payload: CreateProductDto = {
-    name: 'Product 1',
-    description: 'Product 1 description',
-    price: 100,
-    stock: 100,
-    categoryIds: [],
-  };
-
-  it('should give a valid product response', async () => {
-    const expectedProduct: Product = {
-      id: 1,
-      name: 'Product 1',
-      description: 'Product 1 description',
-      price: 100,
-      stock: 100,
-      categories: [],
-      orderItems: [], // Assuming orderItems is a property of Product
-    };
-
-    jest.spyOn(service, 'create').mockResolvedValue(expectedProduct);
-
-    const result = await controller.create(payload);
-    expect(result).toEqual(expectedProduct);
-  });
 });
