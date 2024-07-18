@@ -41,10 +41,15 @@ describe('ProductController', () => {
 
   });
 
-  it('/products (GET)', () => {
-    return request(app.getHttpServer())
+  it('/products (GET)', async () => {
+ 
+      const response = await request(app.getHttpServer())
       .get('/products')
-      .expect(200)
+      .expect(200);
+
+      expect(Array.isArray(response.body)).toBe(true)
+      expect(Array(response.body).length).toBeGreaterThanOrEqual(0)
+
   });
 
 });
